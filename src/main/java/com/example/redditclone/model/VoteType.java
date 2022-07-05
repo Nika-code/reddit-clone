@@ -1,4 +1,7 @@
 package com.example.redditclone.model;
 
-public class VoteType {
+import java.util.Arrays;
+
+public enum VoteType {
+    UPVOTE, DOWNVOTE
 }
