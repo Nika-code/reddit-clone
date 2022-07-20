@@ -25,6 +25,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
@@ -66,8 +67,9 @@ public class AuthService {
     @Transactional
     public void verifyAccount(String token) {
         Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
-        verificationToken.orElseThrow(() -> new SpringRedditException("Invalid Token"));
-        fetchUserAndEnable(verificationToken.get());
+//        verificationToken.orElseThrow(() -> new SpringRedditException("Invalid Token"));
+//        fetchUserAndEnable(verificationToken.get());
+        fetchUserAndEnable(verificationToken.orElseThrow(() -> new SpringRedditException("Invalid Token")));
     }
 
     private void fetchUserAndEnable(VerificationToken verificationToken) {
@@ -81,6 +83,11 @@ public class AuthService {
         Authentication authenticate =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
-        return new AuthenticationResponse(token, loginRequest.getUsername());
+//        return new AuthenticationResponse(token, loginRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .username(loginRequest.getUsername())
+                .build();
+
     }
 }
